@@ -1,0 +1,100 @@
+openapi: 3.0.0
+info:
+  title: Deft Point Brief Generator API
+  description: API for generating social media content briefs and managing Notion integration
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Local development server
+paths:
+  /api/gpt/generate-brief:
+    post:
+      summary: Generate a new content brief
+      description: Creates a comprehensive social media content brief and adds it to Notion
+      operationId: generateBrief
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                topic:
+                  type: string
+                  description: The main topic for the content brief
+                  example: "How To Validate Your SAAS Idea"
+                pillar:
+                  type: string
+                  description: Content pillar category
+                  enum: ["Behind-the-Scenes", "Educational", "Case Study", "Proof & Projects"]
+                  default: "Behind-the-Scenes"
+                platform:
+                  type: array
+                  items:
+                    type: string
+                  description: Target social media platforms
+                  example: ["LinkedIn", "Threads", "X/Twitter"]
+                postType:
+                  type: array
+                  items:
+                    type: string
+                  description: Types of posts to create
+                  example: ["Article/Blog", "Carousel"]
+                priority:
+                  type: string
+                  description: Priority level
+                  enum: ["Low", "Medium", "High", "Urgent"]
+                  default: "Medium"
+              required:
+                - topic
+      responses:
+        '200':
+          description: Brief generated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  notionUrl:
+                    type: string
+                    description: URL to the generated Notion page
+                  pageId:
+                    type: string
+                    description: Notion page ID
+                  message:
+                    type: string
+                    description: Success message
+        '400':
+          description: Bad request
+        '500':
+          description: Internal server error
+  /api/gpt/recent-briefs:
+    get:
+      summary: Get recent content briefs
+      description: Retrieve a list of recently generated content briefs
+      operationId: getRecentBriefs
+      responses:
+        '200':
+          description: List of recent briefs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  briefs:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        topic:
+                          type: string
+                        notionUrl:
+                          type: string
+                        createdAt:
+                          type: string
