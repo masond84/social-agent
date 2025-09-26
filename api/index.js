@@ -1,5 +1,5 @@
 import express from 'express';
-import { WorkflowService } from '../services/workflowService.js';
+import { WorkflowService } from '../src/services/workflowService.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -70,8 +70,6 @@ export class NotionWebhook {
       try {
         console.log('🤖 GPT Action: List Recent Briefs Request');
         
-        // This would require implementing a method to get recent briefs
-        // For now, return a placeholder response
         res.json({
           success: true,
           message: 'Recent briefs functionality coming soon',
@@ -86,40 +84,6 @@ export class NotionWebhook {
       }
     });
 
-    // Notion webhook endpoint
-    app.post('/webhook/notion', async (req, res) => {
-      try {
-        console.log('📥 Received Notion webhook');
-        
-        // Process the webhook payload
-        const { type, page_id, database_id } = req.body;
-        
-        if (type === 'page.created' || type === 'page.updated') {
-          console.log(`🔄 Processing ${type} for page: ${page_id}`);
-          
-          // Add a small delay to ensure Notion has processed the update
-          setTimeout(async () => {
-            try {
-              const result = await this.workflow.processPendingBriefs();
-              
-              if (result.success) {
-                console.log(`✅ Webhook processed ${result.processed} briefs`);
-              } else {
-                console.error('❌ Webhook processing failed:', result.error);
-              }
-            } catch (error) {
-              console.error('💥 Webhook processing error:', error);
-            }
-          }, 2000);
-        }
-        
-        res.status(200).send('OK');
-      } catch (error) {
-        console.error(' Webhook error:', error);
-        res.status(500).send('Error processing webhook');
-      }
-    });
-
     // Health check endpoint
     app.get('/health', (req, res) => {
       res.status(200).json({ 
@@ -127,30 +91,20 @@ export class NotionWebhook {
         timestamp: new Date().toISOString(),
         endpoints: {
           generateBrief: '/api/gpt/generate-brief',
-          recentBriefs: '/api/gpt/recent-briefs',
-          notionWebhook: '/webhook/notion'
+          recentBriefs: '/api/gpt/recent-briefs'
         }
       });
     });
 
     return app;
   }
-
-  start(port = 3000) {
-    const app = this.setupRoutes();
-    
-    app.listen(port, () => {
-      console.log(`🚀 GPT Actions server running on port ${port}`);
-      console.log(`🤖 Generate Brief: http://localhost:${port}/api/gpt/generate-brief`);
-      console.log(` Recent Briefs: http://localhost:${port}/api/gpt/recent-briefs`);
-      console.log(`📡 Notion Webhook: http://localhost:${port}/webhook/notion`);
-      console.log(`💚 Health check: http://localhost:${port}/health`);
-    });
-  }
 }
 
-// Start webhook server if running as main module
-if (import.meta.url.endsWith(process.argv[1]) || process.argv[1].includes('notionWebhook.js')) {
+// Vercel serverless function handler
+export default async function handler(req, res) {
   const webhook = new NotionWebhook();
-  webhook.start();
+  const app = webhook.setupRoutes();
+  
+  // Handle the request
+  app(req, res);
 }
