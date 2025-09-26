@@ -1,0 +1,11 @@
+# Environment variables
+.env
+.env.example
+
+# Package Files
+package-lock.json
+package.json
+/node_modules
+
+# Workspace Files
+Socials.code-workspace
