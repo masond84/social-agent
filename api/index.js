@@ -19,7 +19,7 @@ export class NotionWebhook {
         console.log('🤖 GPT Action: Generate Brief Request');
         console.log('📝 Request body:', req.body);
         
-        const { topic, pillar, platform, postType, priority } = req.body;
+        const { topic, pillar, platform, postType, priority, agencyId } = req.body;
         
         // Validate required fields
         if (!topic) {
@@ -39,7 +39,8 @@ export class NotionWebhook {
         
         console.log(' Processing brief for:', input.topic);
         
-        const result = await this.workflow.processSingleBrief(input);
+        // Use agency-specific configuration
+        const result = await this.workflow.processSingleBrief(input, agencyId || 'default');
         
         if (result.success) {
           console.log('✅ GPT Action: Brief generated successfully');
