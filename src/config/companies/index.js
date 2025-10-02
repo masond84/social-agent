@@ -1,10 +1,13 @@
 import { DEFTPOINT_CONFIG } from './deftpoint.js';
 import { TEMPLATE_CONFIG } from './template.js';
+// TEST IMPORT UPTOWNSAGE_CONFIG
+import { UPTOWNSAGE_CONFIG } from './uptownsage.js';
 
 // Company registry
 const COMPANIES = {
   deftpoint: DEFTPOINT_CONFIG,
-  template: TEMPLATE_CONFIG
+  template: TEMPLATE_CONFIG,
+  uptownsage: UPTOWNSAGE_CONFIG
 };
 
 /**
