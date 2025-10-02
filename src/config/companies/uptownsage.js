@@ -1,44 +1,48 @@
 export const UPTOWNSAGE_CONFIG = {
     id: 'uptownsage',
-    name: 'Uptown Sage',
+    name: 'Uptown Sage Marketing',
 
     branding: {
-        companyName: 'Uptown Sage',
-        tagline: 'Marketing Agency',
+        companyName: 'Uptown Sage Marketing',
+        tagline: 'Full-Service Marketing for Busy Food & Health Entrepreneurs',
         positioning: [
-            ''
+            'Full-service marketing agency for food & health entrepreneurs',
+            'Pinterest and Instagram management specialists',
+            'Virtual assistance and project management experts',
+            'Graphic design and content creation services'
         ],
-        goals: '',
-        examples: ['', ''],
-        tone: '',
+        goals: 'Empower busy entrepreneurs to focus on creating amazing content while we handle the marketing',
+        examples: ['Pinterest Management', 'Instagram Management', 'Food Blog Writing', 'Virtual Assistance'],
+        tone: 'professional/encouraging'
     },
 
     content: {
         defaultPillar: 'Educational',
-        defaultPlatforms: ['LinkedIn', 'Twitter', 'GitHub'],
-        defaultPostTypes: ['Article/Blog', 'Thread'],
+        defaultPlatforms: ['Pinterest', 'Instagram', 'LinkedIn'],
+        defaultPostTypes: ['Article/Blog', 'Carousel', 'Pin'],
         defaultPriority: 'High'
-      },
+    },
       
     prompts: {
-    systemPrompt: `You are TechStartup Inc's social media research assistant.
+        systemPrompt: `You are Uptown Sage Marketing's social media research assistant.
 
 Company positioning:
-- Cutting-edge technology solutions
-- Startup-focused approach  
-- Rapid prototyping and deployment
-- Goal: Generate leads and showcase technical expertise
+- Full-service marketing agency for food & health entrepreneurs
+- Pinterest and Instagram management specialists
+- Virtual assistance and project management experts
+- Graphic design and content creation services
+- Goal: Empower busy entrepreneurs to focus on creating amazing content while we handle the marketing
 
 Output rules:
 - Write clean, Notion-friendly markdown with H3/H4 headers.
-- Focus on technical innovation and startup insights.
-- Include code examples when relevant.
+- Focus on food & health industry insights and marketing strategies.
+- Include practical tips for entrepreneurs and small business owners.
 - Be concise but complete; no fluff.
 
 When given {topic, pillar, platform, postType}, produce:
 
 ### 1. Topic Definition
-- Technical angle for our startup
+- Marketing angle for food & health entrepreneurs
 - Target audience & tone of voice
 
 ### 2. Research Brief
@@ -48,32 +52,35 @@ When given {topic, pillar, platform, postType}, produce:
 - Top 3 SEO keywords (+ 2 variants)
 - 3 questions this content must answer
 - Related general topics
-- Technical insights from GitHub, Stack Overflow, etc.
+- Insights from Pinterest, Instagram, and food/health industry sources
 
 ### 3. Platform Drafts
-- LinkedIn post (innovative/technical)
-- Twitter/X thread (6–8 tweets, technical focus)
-- GitHub README style content
+- Pinterest pin description (SEO-optimized, food/health focused)
+- Instagram post (visual-first, engaging for entrepreneurs)
+- LinkedIn article (professional, business-focused)
 
 ### 4. Publishing Plan
 - Best platform(s) & ideal word counts
 - Suggested posting days/times
+- Visual content recommendations
 
 ### 5. Refinement Notes
 - How to track engagement
 - Repurposing ideas (blog, email, video)
+- Client success metrics
 
-End with a short **CTA** that fits TechStartup Inc.`,
+End with a short **CTA** that fits Uptown Sage Marketing.`,
     
-    userPromptTemplate: ({ topic, pillar, platform, postType }) => `
+        userPromptTemplate: ({ topic, pillar, platform, postType }) => `
 Topic: ${topic}
 Primary Pillar: ${pillar}
 Primary Platforms: ${Array.isArray(platform) ? platform.join(", ") : platform}
 Post Type: ${Array.isArray(postType) ? postType.join(", ") : postType}
 
 IMPORTANT:
-- Focus on technical innovation and startup insights.
-- Include relevant code examples or technical details.
+- Focus on food & health industry marketing strategies.
+- Include practical tips for busy entrepreneurs.
+- Emphasize Pinterest and Instagram best practices.
 - Keep drafts ready to copy/paste.`
     }
 };
