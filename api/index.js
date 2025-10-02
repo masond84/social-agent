@@ -1,5 +1,6 @@
 import express from 'express';
 import { WorkflowService } from '../src/services/workflowService.js';
+import { listCompanies, getCompanyConfig } from '../src/config/companies/index.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -19,7 +20,7 @@ export class NotionWebhook {
         console.log('🤖 GPT Action: Generate Brief Request');
         console.log('📝 Request body:', req.body);
         
-        const { topic, pillar, platform, postType, priority } = req.body;
+        const { topic, pillar, platform, postType, priority, companyId } = req.body;
         
         // Validate required fields
         if (!topic) {
@@ -29,17 +30,25 @@ export class NotionWebhook {
           });
         }
         
+        // Use companyId from request or default to 'deftpoint'
+        const finalCompanyId = companyId || 'deftpoint';
+        
+        // Validate companyId exists
+        const companyConfig = getCompanyConfig(finalCompanyId);
+        console.log(`🏢 Using company config: ${companyConfig.name} (${finalCompanyId})`);
+        
+        // Use company defaults if not provided
         const input = {
           topic,
-          pillar: pillar || 'Behind-the-Scenes',
-          platform: Array.isArray(platform) ? platform : (platform ? platform.split(',') : ['LinkedIn', 'Threads', 'X']),
-          postType: Array.isArray(postType) ? postType : (postType ? postType.split(',') : ['Article/Blog', 'Carousel']),
-          priority: priority || 'Medium'
+          pillar: pillar || companyConfig.content.defaultPillar,
+          platform: Array.isArray(platform) ? platform : (platform ? platform.split(',') : companyConfig.content.defaultPlatforms),
+          postType: Array.isArray(postType) ? postType : (postType ? postType.split(',') : companyConfig.content.defaultPostTypes),
+          priority: priority || companyConfig.content.defaultPriority
         };
         
         console.log(' Processing brief for:', input.topic);
         
-        const result = await this.workflow.processSingleBrief(input);
+        const result = await this.workflow.processSingleBrief(input, finalCompanyId);
         
         if (result.success) {
           console.log('✅ GPT Action: Brief generated successfully');
@@ -47,6 +56,7 @@ export class NotionWebhook {
             success: true,
             notionUrl: result.notionUrl,
             pageId: result.pageId,
+            companyId: finalCompanyId,
             message: `Brief for "${topic}" has been generated and added to Notion. You can view it here: ${result.notionUrl}`
           });
         } else {
@@ -84,14 +94,54 @@ export class NotionWebhook {
       }
     });
 
+    // New endpoint: List available companies
+    app.get('/api/gpt/companies', async (req, res) => {
+      try {
+        console.log('🤖 GPT Action: List Companies Request');
+        
+        const companies = listCompanies();
+        const configs = companies.map(id => {
+          const config = getCompanyConfig(id);
+          return {
+            id: config.id,
+            name: config.name,
+            branding: {
+              companyName: config.branding.companyName,
+              tagline: config.branding.tagline,
+              tone: config.branding.tone
+            },
+            defaults: config.content
+          };
+        });
+        
+        res.json({
+          success: true,
+          companies: configs,
+          message: `Found ${companies.length} available company configurations`
+        });
+      } catch (error) {
+        console.error('💥 GPT Action error:', error);
+        res.status(500).json({
+          success: false,
+          error: error.message
+        });
+      }
+    });
+
     // Health check endpoint
     app.get('/health', (req, res) => {
       res.status(200).json({ 
         status: 'healthy', 
         timestamp: new Date().toISOString(),
+        version: '2.0.0-multi-tenant',
         endpoints: {
           generateBrief: '/api/gpt/generate-brief',
-          recentBriefs: '/api/gpt/recent-briefs'
+          recentBriefs: '/api/gpt/recent-briefs',
+          companies: '/api/gpt/companies'
+        },
+        features: {
+          multiTenant: true,
+          defaultCompany: 'deftpoint'
         }
       });
     });

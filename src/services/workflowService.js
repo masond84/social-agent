@@ -7,8 +7,9 @@ export class WorkflowService {
     this.notionService = new NotionService();
   }
 
-  async processSingleBrief(input) {
+  async processSingleBrief(input, companyId = 'deftpoint') {
     console.log('🚀 Starting brief generation for:', input.topic);
+    console.log(`🏢 Company: ${companyId}`);
     
     // Step 1: Create Notion page
     console.log('📝 Creating Notion page...');
@@ -22,9 +23,9 @@ export class WorkflowService {
     console.log('✅ Notion page created:', notionResult.url);
     console.log(' Notion result object:', JSON.stringify(notionResult, null, 2));
 
-    // Step 2: Generate AI content
+    // Step 2: Generate AI content with company-specific config
     console.log('🤖 Generating AI content...');
-    const aiResult = await this.aiService.generateBrief(input);
+    const aiResult = await this.aiService.generateBrief(input, companyId);
 
     if (!aiResult.success) {
       console.error('❌ AI generation failed:', aiResult.error);
@@ -56,12 +57,14 @@ export class WorkflowService {
       notionUrl: notionResult.url,
       pageId: notionResult.pageId,
       content: aiResult.content,
-      usage: aiResult.usage
+      usage: aiResult.usage,
+      companyId: companyId
     };
   }
 
-  async processPendingBriefs() {
+  async processPendingBriefs(companyId = 'deftpoint') {
     console.log('🔍 Checking for pending briefs...');
+    console.log(`🏢 Company: ${companyId}`);
     
     const pendingResult = await this.notionService.getPendingBriefs();
     
@@ -84,7 +87,7 @@ export class WorkflowService {
       // Extract input data from Notion page properties
       const input = this.extractInputFromNotionPage(page);
       
-      const result = await this.processSingleBrief(input);
+      const result = await this.processSingleBrief(input, companyId);
       results.push({
         pageId: page.id,
         ...result

@@ -1,5 +1,5 @@
 import OpenAI from 'openai';
-import { SYSTEM_PROMPT, makeUserPrompt } from '../config/prompts.js';
+import { getSystemPrompt, makeUserPrompt } from '../config/companies/index.js';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -11,14 +11,18 @@ export class AIService {
     });
   }
 
-  async generateBrief(input) {
+  async generateBrief(input, companyId = 'deftpoint') {
     try {
-      const userPrompt = makeUserPrompt(input);
+      // Get company-specific prompts
+      const systemPrompt = getSystemPrompt(companyId);
+      const userPrompt = makeUserPrompt(input, companyId);
+      
+      console.log(`🏢 Using config for: ${companyId}`);
       
       const response = await this.openai.chat.completions.create({
         model: 'gpt-4-turbo-preview',
         messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
+          { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
         temperature: 0.7,

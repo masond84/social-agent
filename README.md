@@ -85,6 +85,8 @@ node src/webhook/notionWebhook.js
 - Use scheduler for batch processing
 - Maximum flexibility
 
+## Vercel Project
+Our project url: `https://social-agent-black.vercel.app/health`
 ## Notion Webhook Setup
 
 1. Go to your Notion integration settings
